@@ -6,9 +6,9 @@ class Model
 	public $conn;
 
 	public $host = 'localhost';
-	public $user = 'root';
-	public $pass = '';
-	public $name = 'breath_app';
+	public $user = 'neozik03_zien';
+	public $pass = ';Y#Wz^BNFSGO';
+	public $name = 'neozik03_zien';
 	public $tableName = "";
 
 	public function __construct()
@@ -91,6 +91,70 @@ class Model
 		}
 	}	
 
+
+	public function getOneByTodayDate($date,$type)
+	{
+		//SELECT * FROM `events` WHERE DATE_FORMAT(`activities_start_date`, '%Y-%m-%d') = '2019-03-17';
+		try {
+			$conn = $this->conn;
+			$sql  = "SELECT * FROM `events` WHERE DATE_FORMAT(STR_TO_DATE(`activities_start_date`, '%Y-%m-%d'), '%Y-%m-%d') = '$date' AND `activities_type` = $type ";
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute(['activities_start_date' => $date, 'activities_type' => $type]);
+			$rows = [];
+			while ($row = $stmt->fetch(\PDO::FETCH_ASSOC))
+			{
+				$rows[] = $row;
+			}
+			return $rows;	
+		} catch (PDOException $e) {
+		    print "Error!: " . $e->getMessage() . "<br/>";
+		    die();
+		}
+	}	
+
+	public function getOneByTodayDateAndEventID($date,$eventID)
+	{
+	    
+	   //SELECT * FROM `events` WHERE DATE_FORMAT(STR_TO_DATE(`activities_start_date`, "%Y-%m-%d"), "%Y-%m-%d") = '2019-04-04'
+		//SELECT * FROM `events` WHERE DATE_FORMAT(`activities_start_date`, '%Y-%m-%d') = '2019-03-17';
+		try {
+			$conn = $this->conn;
+			$sql  = "SELECT * FROM `events` WHERE DATE_FORMAT(STR_TO_DATE(`activities_start_date`, '%Y-%m-%d'), '%Y-%m-%d') = '$date' AND `eventID` = $eventID ";
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute(['activities_start_date' => $date, 'eventID' => $eventID]);
+			$rows = [];
+			while ($row = $stmt->fetch(\PDO::FETCH_ASSOC))
+			{
+				$rows[] = $row;
+			}
+			return $rows;	
+		} catch (PDOException $e) {
+		    print "Error!: " . $e->getMessage() . "<br/>";
+		    die();
+		}
+	}	
+
+
+	public function getUserByTodayDate($date)
+	{
+		//SELECT * FROM `events` WHERE DATE_FORMAT(`activities_start_date`, '%Y-%m-%d') = '2019-03-17';
+		try {
+			$conn = $this->conn;
+			$sql  = "SELECT * FROM `events` WHERE DATE_FORMAT(STR_TO_DATE(`activities_start_date`, '%Y-%m-%d'), '%Y-%m-%d') = '$date'";
+			$stmt = $this->conn->prepare($sql);
+			$stmt->execute(['activities_start_date' => $date]);
+			$rows = [];
+			while ($row = $stmt->fetch(\PDO::FETCH_ASSOC))
+			{
+				$rows[] = $row;
+			}
+			return $rows;	
+		} catch (PDOException $e) {
+		    print "Error!: " . $e->getMessage() . "<br/>";
+		    die();
+		}
+	}	
+
 	public function insert($data)
 	{
 		try {
@@ -109,7 +173,8 @@ class Model
 			$sql = rtrim($sql,',');
 			$sql .= ")";
 			$stmt = $this->conn->prepare($sql);
-			return $stmt->execute($data);
+			$stmt->execute($data);
+			return $this->conn->lastInsertId();
 
 		} catch (PDOException $e) {
 		    print "Error!: " . $e->getMessage() . "<br/>";
@@ -138,7 +203,69 @@ class Model
 		}
 	}	
 
-	public function delete($id)
+	public function flexiUpdate($IDcolumnName,$id,$data)
+	{
+		try {
+
+			$sql = "UPDATE $this->tableName SET";
+			foreach ($data as $key => $value) {
+				$sql.= " $key = '$value',";
+			}
+			
+			$sql = rtrim($sql,',');
+			$sql .= " WHERE $IDcolumnName=$id";
+			$stmt = $this->conn->prepare($sql);
+			$data = array_merge([$IDcolumnName => $id], $data);
+			return $stmt->execute($data);
+			
+		} catch (PDOException $e) {
+		    print "Error!: " . $e->getMessage() . "<br/>";
+		    die();
+		}
+	}	
+
+	public function flexi2Update($IDcolumnName,$id,$IDcolumnName2,$type,$data)
+	{
+		try {
+
+			$sql = "UPDATE $this->tableName SET";
+			foreach ($data as $key => $value) {
+				$sql.= " $key = '$value',";
+			}
+			
+			$sql = rtrim($sql,',');
+			$sql .= " WHERE $IDcolumnName=$id AND $IDcolumnName2=$type";
+			//echo $sql;
+			$stmt = $this->conn->prepare($sql);
+			$data = array_merge([$IDcolumnName => $id], $data);
+			return $stmt->execute($data);
+			
+		} catch (PDOException $e) {
+		    print "Error!: " . $e->getMessage() . "<br/>";
+		    die();
+		}
+	}	
+
+	public function delete($data)
+	{
+		try {
+
+			$sql = "DELETE FROM  $this->tableName WHERE 1";
+			foreach ($data as $key => $value) {
+				$sql.= " AND `$key` = :$key";
+			}
+			
+			$sql = rtrim($sql,',');
+			$stmt = $this->conn->prepare($sql);
+			return $stmt->execute($data);
+			
+		} catch (PDOException $e) {
+		    print "Error!: " . $e->getMessage() . "<br/>";
+		    die();
+		}
+	}	
+
+	public function deletebyID($id)
 	{
 		try {
 
@@ -151,4 +278,6 @@ class Model
 		    die();
 		}
 	}	
+
+	
 }

@@ -1,12 +1,17 @@
 <?php
+date_default_timezone_set("Asia/Kuala_Lumpur");
 error_reporting(E_ALL);
+session_start();
 ini_set('display_errors', 1);
-
 require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/PHPMailer-master/src/PHPMailer.php';
+require __DIR__ . '/PHPMailer-master/src/SMTP.php';
+require __DIR__ . '/PHPMailer-master/src/Exception.php';
+
 
 // constant
 define('PATH_ROOT', __DIR__);
-define('URL_BASE', 'http://localhost/breath-apps');
+define('URL_BASE', 'http://geekycs.com/zien');
 
 // route
 $route = isset($_GET['_r']) ? $_GET['_r'] : null;
